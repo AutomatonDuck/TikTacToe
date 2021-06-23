@@ -22,14 +22,14 @@ screen = pg.display.set_mode((width,height+100),0,32)
 pg.display.set_caption("Tic Tac Toe")
 
 #image loading
-opening = pg.load("tic tac opening.png")
+opening = pg.image.load("tic tac opening.png")
 x_img = pg.image.load("x.png")
 o_img = pg.image.load("o.png")
 
 #resizing image
-x_img = pg.transform(x_img, (80,80))
-o_img = pg.transform(o_img, (80,80))
-opening = pg.transform(opening, (width,height+100))
+x_img = pg.transform.scale(x_img, (80,80))
+o_img = pg.transform.scale(o_img, (80,80))
+opening = pg.transform.scale(opening, (width,height+100))
 
 
 ######################################Functions############################################
@@ -42,7 +42,7 @@ def game_open():
 
     #vertical lines
     pg.draw.line(screen,line_color,(width/3,0), (width/3, height), 7)
-    pg.draw.line(screen,line_color,(width/3*2,0)(width/3*2,height),7)
+    pg.draw.line(screen,line_color,(width/3*2,0),(width/3*2,height),7)
     #horizontal lines
     pg.draw.line(screen,line_color,(0,height/3),(width, height/3),7)
     pg.draw.line(screen,line_color,(0,height/3*2), (width, height/3*2),7)
@@ -89,3 +89,83 @@ def check_win():
         draw =True
     draw_status()
 
+def drawXO(row,col):
+    global TTT,XO
+    if row==1:
+        posx=30
+    if row==2:
+        posx = width/3+30
+    if row==3:
+        posx=width/3*2+30
+    
+    if col==1:
+        posy=35
+    if col==2:
+        posy=height/3+30
+    if col==3:
+        posy=height/3*2+30
+    TTT[row-1][col-1] = XO
+    if(XO =='x'):
+        screen.blit(x_img,(posy,posx))
+        XO='o'
+    else:
+        screen.blit(o_img,(posy,posx))
+        XO='x'
+    pg.display.update()
+    #print(posx,posy)
+    #print(TTT)
+
+def userClick():
+    #get coordiantes
+    x,y=pg.mouse.get_pos()
+
+    #get coulmn of click
+    if(x<width/3):
+        col=1
+    elif(x<width/3*2):
+        col=2
+    elif (x<width):
+        col=3
+    else:
+        col = None
+    #get rows
+    if(y<height/3):
+        row=1
+    elif(y<height/3*2):
+        row=2
+    elif (y<height):
+        row=3
+    else:
+        row = None
+    #print(row,col)
+    if(row and col and TTT[row-1][col-1] is None):
+        global XO
+
+        drawXO(row, col)
+        check_win()
+
+def reset_game():
+    global TTT, winner,XO,draw
+    time.sleep(3)
+    XO='x'
+    draw = False
+    game_open()
+    winner=None
+    TTT=[[None]*3,[None]*3,[None]*3,[None]*3]
+
+
+#####Main Driver###
+game_open()
+
+while True:
+    for event in pg.event.get():
+        if event.type == QUIT:
+            pg.quit()
+            sys.exit()
+        elif event.type == MOUSEBUTTONDOWN:
+            userClick()
+            if(winner or draw):
+                reset_game()
+    pg.display.update()
+    CLOCK.tick(fps)
+    
